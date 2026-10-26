@@ -483,13 +483,17 @@ export namespace ILanguageModelChatMetadata {
 	 */
 	export function getAutoModelDescription(fusion?: boolean): string {
 		if (fusion) {
-			const fusionBase = localize('autoModel.fusionDescription', "Copilot Fusion chooses models and workflows based on your task.");
 			const fusionLearnMore = localize('autoModel.fusionLearnMore', "[Learn more]({0})", fusionDocsUrl);
-			return `${fusionBase} ${fusionLearnMore}`;
+			return `${getFusionSummary()} ${fusionLearnMore}`;
 		}
 		const base = localize('autoModel.description', "Auto routes based on your task and real-time system health and model performance.");
 		const learnMore = localize('autoModel.learnMore', "[Learn More]({0})", autoModelSelectionDocsUrl);
 		return `${base} ${learnMore}`;
+	}
+
+	/** Copilot Fusion's one-sentence description, as plain text without its "Learn more" link. */
+	export function getFusionSummary(): string {
+		return localize('autoModel.fusionDescription', "Copilot Fusion selects a single model or orchestrates multiple models to complete your task.");
 	}
 
 	/**
@@ -1861,16 +1865,14 @@ export class LanguageModelsService implements ILanguageModelsService {
 			group = allGroups.find(g => g.vendor === metadata.vendor);
 		}
 
-		// Merge new values into existing config, removing properties set to their schema default
+		// Reset keys must be removed from both persisted settings and the in-memory cache.
 		const existingConfig = this._modelConfigurations.get(modelId) ?? {};
 		const updatedConfig = { ...existingConfig, ...values };
 		const schema = metadata.configurationSchema;
-		if (schema?.properties) {
-			for (const [key, value] of Object.entries(updatedConfig)) {
-				const propSchema = schema.properties[key];
-				if (propSchema?.default !== undefined && propSchema.default === value && !metadata.configurationDefaultKeys?.includes(key)) {
-					delete updatedConfig[key];
-				}
+		for (const [key, value] of Object.entries(updatedConfig)) {
+			const propSchema = schema?.properties?.[key];
+			if (value === undefined || (propSchema?.default !== undefined && propSchema.default === value && !metadata.configurationDefaultKeys?.includes(key))) {
+				delete updatedConfig[key];
 			}
 		}
 

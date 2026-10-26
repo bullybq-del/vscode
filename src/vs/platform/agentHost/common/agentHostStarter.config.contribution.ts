@@ -58,8 +58,8 @@ import {
 	AgentHostWorkspaceSnapshotEnabledConfigKey,
 } from './agentHostSchema.js';
 import { AgentMergeConfigKey, AgentMergeSettingId, AGENT_MERGE_SETTING_TAG } from './agentMerge.js';
-import { ChatMoveConfigKey, ChatMoveSettingId } from './agentHostChatMove.js';
 import { artifactToolsConfigurationProperties } from './artifactToolsConfiguration.js';
+import { chatMoveConfigurationProperties } from './chatMoveConfiguration.js';
 import { titleGenerationConfigurationProperties } from './titleGenerationConfiguration.js';
 import { isAhpJsonlLoggingEnabled } from './ahpJsonlLogger.js';
 
@@ -217,14 +217,7 @@ configurationRegistry.registerConfiguration({
 			tags: ['experimental', AGENT_MERGE_SETTING_TAG],
 			agentHost: { key: AgentMergeConfigKey.ReplyAttribution },
 		},
-		[ChatMoveSettingId.Enabled]: {
-			type: 'boolean',
-			description: nls.localize('chat.agentHost.moveChats.enabled', "Enables moving chats between Agent Host sessions and into new sessions."),
-			default: false,
-			scope: ConfigurationScope.APPLICATION,
-			tags: ['experimental'],
-			agentHost: { key: ChatMoveConfigKey.Enabled },
-		},
+		...chatMoveConfigurationProperties,
 		...titleGenerationConfigurationProperties,
 		...artifactToolsConfigurationProperties,
 		[CanvasesEnabledSettingId]: {
@@ -312,7 +305,7 @@ configurationRegistry.registerConfiguration({
 		},
 		[AgentHostComputerUseEnabledSettingId]: {
 			type: 'boolean',
-			markdownDescription: nls.localize('chat.agentHost.computerUse.enabled', "When enabled, local Copilot agent sessions on macOS and Windows offer GitHub's Computer Use plugin, which can operate desktop applications. The plugin is downloaded on first use. Turn it on with `/computer on` in a Copilot chat; each application still requires your approval."),
+			markdownDescription: nls.localize('chat.agentHost.computerUse.enabled', "When enabled, local Copilot agent sessions on macOS and Windows offer GitHub's Computer Use plugin, which can operate desktop applications. The plugin is downloaded on first use. Turn it on with `/computer on` in a Copilot chat, or when the agent asks. Each application still requires your approval. Changes take effect after a restart."),
 			default: false,
 			tags: ['experimental', 'advanced'],
 			experiment: { mode: 'startup' },
